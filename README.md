@@ -6,17 +6,14 @@ Classic Hangman game made as a practice project for [Tero Karvinen's Go Programm
 ~~~~
 Tested on:
 - Linux (Works)
-  - Can open help page
-  - Can start the game
-  - Can win and lose the game
-  - Can restart and escape to menu
+  - Game is fully playable
   - Minor bug: Arrow keys function as Esc
 - Mac (Borked)
   - Menu opens
   - Fatal bug: Number input doesn't function, can't start game.
 - Windows (Borked)
   - Menu opens
-  - Can open help page with H-key
+  - Help page opens
   - Fatal bug: Number input doesn't work, can't start game.
   - Bug: Esc input doesn't work
 ~~~~
