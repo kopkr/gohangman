@@ -21,9 +21,8 @@ Tested on:
 ~~~~
 Beta
 TODO:
- - Wordlist
  - Difficulty options
- - Clean up code
+ - Clean up code (Rearrange functions, remove unnecessary stuff)
 ~~~~
 
 ![alpha_img](img/img1.jpg)
