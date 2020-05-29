@@ -14,6 +14,9 @@
 // https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
 // https://golang.org/pkg/runtime/
 
+// ---- Misc -----
+// https://stackoverflow.com/questions/10485743/contains-method-for-a-slice
+
 package main
 
 import (
