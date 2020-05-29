@@ -51,33 +51,44 @@ func playGame(diff int) {
 	word := strings.ToUpper("Dictionary")
 	letters := []byte(word)
 	var guessed []byte;
-	var message string = "";
+	var message string = "How's it hanging?";
 	var status int = 0;
+	//var won bool = false;
 	for {
 		clear()
 		banner(false)
-		if status >= 9 {
+		hangman(message,status)
+
+		if status >= 8 {
+			message="RIP, dude."
 			restart(message, status, diff)
 		}
-		fmt.Println("Status:",status,"Difficulty:",diff)
-		hangman(message,status)
+
+		//fmt.Println("Status:",status,"Difficulty:",diff)
 		fmt.Print("                 ")
+		var hidden []byte;
 		for i:=0;i<len(letters);i++{
 			if hasKey(guessed, letters[i]) {
-				fmt.Print(string(letters[i])," ")
-				//fmt.Print(strings.ToUpper(string(guessed)),"\n")
+				fmt.Print(strings.ToUpper(string(letters[i])))
+				fmt.Print(" ")
 			} else if letters[i] == '-' {
 				guessed = append(guessed, '-')
 				fmt.Print("- ")
 			} else {
 				fmt.Print("_ ")
+				hidden = append(hidden, '_')
 			}
 		}
-		fmt.Println("\n")
-		fmt.Print("                         ( Press key ) ")
+
+		if !hasKey(hidden, '_') {
+			message="You survived. Play again?"
+			restart(message,status,diff)
+		}
 		fmt.Println()
 		fmt.Println()
-		fmt.Println("                   ",message)
+		fmt.Println("                       ( Press key )")
+		fmt.Println()
+		fmt.Println()
 
 		var keys []byte;
 		isLetter := false;
@@ -118,8 +129,10 @@ func playGame(diff int) {
 
 // Restart or return to main menu once the game after game is finished.
 func restart(message string, status, diff int) {
-	message="RIP, dude."
+	clear()
+	banner(false)
 	hangman(message,status)
+
 	fmt.Println("\n")
 	fmt.Print("                         ( Press R to restart ) \n")
 	fmt.Print("                         ( Press Esc or Q to go to menu ) ")
@@ -150,16 +163,16 @@ func chooseDifficulty() int{
 		clear()
 		banner(true)
 		fmt.Println()
-		fmt.Println("Choose difficulty:")
-		fmt.Println("----------------")
-		fmt.Println("1 - Normal")
-		fmt.Println("----------------")
-		fmt.Println("H - Help")
-		fmt.Println("Esc - Exit")
+		fmt.Println("  Choose difficulty:")
+		fmt.Println("  ----------------")
+		fmt.Println("  1 - Normal")
+		fmt.Println("  ----------------")
+		fmt.Println("  H - Help")
+		fmt.Println("  Esc - Exit")
 		if help {
 			fmt.Println()
-			fmt.Println("Help:")
-			fmt.Println("Press Esc anytime to end program.")
+			fmt.Println("  Help:")
+			fmt.Println("  Press Esc anytime to end program.")
 		}
 		var key []byte = make([]byte, 1)
 		os.Stdin.Read(key)
@@ -200,26 +213,136 @@ func banner(menu bool) {
 func hangman(message string, status int) {
 	fmt.Println()
 	fmt.Println()
-	fmt.Printf("                                    _____________\n")
-	spaces(message)
-	fmt.Print(message,"        |_____________|\n")
-	fmt.Printf("                         \\          _┃    \\\\ ||\n")
-	fmt.Printf("                                    ('')    \\\\||\n")
-	fmt.Printf("                       ¯\\_(ツ)_/¯   /|\\      \\||\n")
-	fmt.Printf("                            |      / | \\      ||\n")
-	fmt.Printf("                            |       / \\       ||\n")
-	fmt.Printf("                           /\\      /   \\      ||\n")
-	fmt.Printf("                          |  \\                ||\n")
-	fmt.Printf("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐\n")
-	fmt.Printf("                         ☐☐☐☐☐☐☐☐☐|     |☐☐☐☐☐☐☐☐☐\n")
-	fmt.Printf("                                  |     | \n")
+	switch {
+		case status == 0:
+			fmt.Println()
+			spaces(message)
+			fmt.Println(message)
+			fmt.Println("                          \\")
+			fmt.Println()
+			fmt.Println("                       ¯\\_(ツ)_/¯")
+			fmt.Println("                            |")
+			fmt.Println("                            |")
+			fmt.Println("                           /\\")
+			fmt.Println("                          |  \\")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 1:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                          \\                \\\\ ||")
+			fmt.Println("                                            \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯            \\||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                           /\\                 ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 2:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯            \\||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                           /\\                 ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 3:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯    |       \\||")
+			fmt.Println("                            |        |        ||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                           /\\                 ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 4:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯    |\\      \\||")
+			fmt.Println("                            |        | \\      ||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                           /\\                 ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 5:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯   /|\\      \\||")
+			fmt.Println("                            |      / | \\      ||")
+			fmt.Println("                            |                 ||")
+			fmt.Println("                           /\\                 ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 6:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯   /|\\      \\||")
+			fmt.Println("                            |      / | \\      ||")
+			fmt.Println("                            |         \\       ||")
+			fmt.Println("                           /\\          \\      ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 7:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯   /|\\      \\||")
+			fmt.Println("                            |      / | \\      ||")
+			fmt.Println("                            |       / \\       ||")
+			fmt.Println("                           /\\      /   \\      ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐┉┉┉┉┉┉┉☐☐☐☐☐☐☐☐☐")
+			fmt.Println()
+		case status == 8:
+			fmt.Println("                                    _____________")
+			spaces(message)
+			fmt.Println(message,"       |_____________|")
+			fmt.Println("                         \\           _┃    \\\\ ||")
+			fmt.Println("                                    ('')    \\\\||")
+			fmt.Println("                       ¯\\_(ツ)_/¯   /|\\      \\||")
+			fmt.Println("                            |      / | \\      ||")
+			fmt.Println("                            |       / \\       ||")
+			fmt.Println("                           /\\      /   \\      ||")
+			fmt.Println("                          |  \\                ||")
+			fmt.Println("                         ☐☐☐☐☐☐☐☐☐|     |☐☐☐☐☐☐☐☐☐")
+			fmt.Println("                                  |     |")
+	}
 	fmt.Println()
+
 }
 
 
+
+
+
 // Counts how many spaces need to be inserted before message for Unicode art formatting to stay aesthetic
-func spaces(message string) {
-	space:=27-len(message)
+func spaces(msg string) {
+	space:=27-len(msg)
 	for i:=0;i < space;i++ {
 		fmt.Print(" ")
 	}
