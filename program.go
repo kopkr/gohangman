@@ -33,30 +33,23 @@ import (
 	"time"
 )
 
-// Check if slice (word and guessed lists) has a specific character.
-func hasKey(slice []byte, key byte) bool {
-   for _, a := range slice {
-      if strings.ToUpper(string(a)) == strings.ToUpper(string(key)) {
-         return true
-      }
-   }
-   return false
+
+// Init function, runs first
+// Establishes signals (so you can safely interrupt program with ctrl+C)
+// Establishes terminal related stuff (get unbuffered key press. No need to press Enter after every line).
+func init() {
+	sigs := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go onCtrlC(sigs,done)
+	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
+	exec.Command("stty", "-F", "/dev/tty", "-echo").Run()
 }
 
-func getWord() string {
-	// TODO: words from wordfil
-	wordfile, err := os.Open("words.txt")
-	if err != nil {log.Fatal(err)}
-	defer wordfile.Close();
-	var words []string
-	scanner := bufio.NewScanner(wordfile)
-	scanner.Split(bufio.ScanWords)
-	for scanner.Scan() {
-		words = append(words, scanner.Text())
-	}
-	rand.Seed(time.Now().UnixNano())
-   	x:= rand.Intn(len(words))
-	return words[x]
+// Main function
+func main() {
+	diff := chooseDifficulty()
+	playGame(diff)
 }
 
 // Start gameplay. Introduce variables.
@@ -221,6 +214,41 @@ func chooseDifficulty() int{
 	return diff
 }
 
+// Check if slice (word and guessed lists) has a specific character.
+func hasKey(slice []byte, key byte) bool {
+   for _, a := range slice {
+      if strings.ToUpper(string(a)) == strings.ToUpper(string(key)) {
+         return true
+      }
+   }
+   return false
+}
+
+// Adjust spaces by word length
+// Counts how many spaces need to be inserted before message for Unicode art formatting to stay aesthetic
+func spaces(msg string) {
+	space:=27-len(msg)
+	for i:=0;i < space;i++ {
+		fmt.Print(" ")
+	}
+}
+
+func getWord() string {
+	// TODO: words from wordfil
+	wordfile, err := os.Open("words.txt")
+	if err != nil {log.Fatal(err)}
+	defer wordfile.Close();
+	var words []string
+	scanner := bufio.NewScanner(wordfile)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		words = append(words, scanner.Text())
+	}
+	rand.Seed(time.Now().UnixNano())
+   	x:= rand.Intn(len(words))
+	return words[x]
+}
+
 // Prints "Hangman" banner.
 func banner(menu bool) {
 	fmt.Println(" _________________________________________________________________")
@@ -364,37 +392,6 @@ func hangman(message string, status int) {
 	}
 	fmt.Println()
 
-}
-
-
-
-
-
-// Adjust spaces by word length
-// Counts how many spaces need to be inserted before message for Unicode art formatting to stay aesthetic
-func spaces(msg string) {
-	space:=27-len(msg)
-	for i:=0;i < space;i++ {
-		fmt.Print(" ")
-	}
-}
-
-// Main function
-func main() {
-	diff := chooseDifficulty()
-	playGame(diff)
-}
-
-// Init function, runs first
-// Establishes signals (so you can safely interrupt program with ctrl+C)
-// Establishes terminal related stuff (get unbuffered key press. No need to press Enter after every line).
-func init() {
-	sigs := make(chan os.Signal, 1)
-	done := make(chan bool, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	go onCtrlC(sigs,done)
-	exec.Command("stty", "-F", "/dev/tty", "cbreak", "min", "1").Run()
-	exec.Command("stty", "-F", "/dev/tty", "-echo").Run()
 }
 
 // Handles interrupting with Ctrl+C
