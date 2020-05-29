@@ -28,6 +28,9 @@ import (
 	"os/signal"
 	"syscall"
 	"runtime"
+	"bufio"
+	"math/rand"
+	"time"
 )
 
 // Check if slice (word and guessed lists) has a specific character.
@@ -40,49 +43,63 @@ func hasKey(slice []byte, key byte) bool {
    return false
 }
 
-// Main gameplay loop.
-func playGame(diff int) {
-	// TODO: words from wordfile
-	wordlist, err := os.Open("words.txt")
+func getWord() string {
+	// TODO: words from wordfil
+	wordfile, err := os.Open("words.txt")
 	if err != nil {log.Fatal(err)}
-	defer wordlist.Close();
+	defer wordfile.Close();
+	var words []string
+	scanner := bufio.NewScanner(wordfile)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		words = append(words, scanner.Text())
+	}
+	rand.Seed(time.Now().UnixNano())
+   	x:= rand.Intn(len(words))
+	return words[x]
+}
 
-	// --------- Prototype ---------- Does not use wordlist
-	word := strings.ToUpper("Dictionary")
+// Start gameplay. Introduce variables.
+func playGame(diff int) {
+	//State variables
+	word := strings.ToUpper(getWord())
 	letters := []byte(word)
 	var guessed []byte;
 	var message string = "How's it hanging?";
 	var status int = 0;
-	//var won bool = false;
+
+	// Gameplay loop
 	for {
 		clear()
 		banner(false)
 		hangman(message,status)
 
+		// Lose state (Hangman is complete)
 		if status >= 8 {
 			message="RIP, dude."
-			restart(message, status, diff)
+			restart(message, status, diff, letters)
 		}
 
-		//fmt.Println("Status:",status,"Difficulty:",diff)
+		spaces(word+word) // Bubblegum solution: Double the word's length to match word length in restart().
+		//Loop through answered letters
 		fmt.Print("                 ")
 		var hidden []byte;
 		for i:=0;i<len(letters);i++{
 			if hasKey(guessed, letters[i]) {
-				fmt.Print(strings.ToUpper(string(letters[i])))
-				fmt.Print(" ")
+				fmt.Print(strings.ToUpper(string(letters[i]))+" ") //Show guessed letters
 			} else if letters[i] == '-' {
-				guessed = append(guessed, '-')
+				guessed = append(guessed, '-') //Show lines in words.
 				fmt.Print("- ")
 			} else {
 				fmt.Print("_ ")
-				hidden = append(hidden, '_')
+				hidden = append(hidden, '_') //Hide unknown letters
 			}
 		}
 
+		// Win state (No hidden letters left)
 		if !hasKey(hidden, '_') {
 			message="You survived. Play again?"
-			restart(message,status,diff)
+			restart(message,status,diff, letters)
 		}
 		fmt.Println()
 		fmt.Println()
@@ -90,6 +107,7 @@ func playGame(diff int) {
 		fmt.Println()
 		fmt.Println()
 
+		//Variables for checking input
 		var keys []byte;
 		isLetter := false;
 		isNumber := false;
@@ -97,6 +115,7 @@ func playGame(diff int) {
 		os.Stdin.Read(keys)
 		key := keys[0]
 
+		//Get key category for later checking (For readability of code)
 		switch {
 			case key >= 'a' && key <= 'z' || key >= 'A' && key <='Z':
 				isLetter = true
@@ -109,6 +128,7 @@ func playGame(diff int) {
 
 		guess:=strings.ToUpper(string(key))
 
+		//Check key press and act accordingly.
 		switch {
 			case hasKey(letters, key) && hasKey(guessed, key) && isLetter:
 				message="You already got \""+guess+"\", bro."
@@ -128,10 +148,20 @@ func playGame(diff int) {
 }
 
 // Restart or return to main menu once the game after game is finished.
-func restart(message string, status, diff int) {
+func restart(message string, status, diff int, letters []byte) {
 	clear()
 	banner(false)
 	hangman(message,status)
+
+	// Separate letters by space and show the word.
+	var word string
+	for i:=0;i<len(letters);i++{
+		word += strings.ToUpper(string(letters[i]))+" "
+	}
+
+	fmt.Print("                 ")
+	spaces(word)
+	fmt.Print(word)
 
 	fmt.Println("\n")
 	fmt.Print("                         ( Press R to restart ) \n")
@@ -340,6 +370,7 @@ func hangman(message string, status int) {
 
 
 
+// Adjust spaces by word length
 // Counts how many spaces need to be inserted before message for Unicode art formatting to stay aesthetic
 func spaces(msg string) {
 	space:=27-len(msg)
