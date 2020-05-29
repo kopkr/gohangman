@@ -23,6 +23,7 @@ Beta
 TODO:
  - Wordlist
  - Difficulty options
+ - Clean up code
 ~~~~
 
 ![alpha_img](img/img1.jpg)
